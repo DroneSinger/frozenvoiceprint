@@ -353,7 +353,7 @@
                 const spectrogramData = [];
                 const bufferLength = analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
-                const captureFrames = 60;
+                const captureFrames = 300;
                 let frameCount = 0;
 
                 function collectData() {
