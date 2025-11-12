@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frozen Voiceprint Snowflake Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #1e3a8a 50%, #1e293b 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #67e8f9, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #bae6fd;
+            font-size: 1.1rem;
+        }
+        
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(103, 232, 249, 0.2);
+        }
+        
+        .instructions {
+            background: rgba(51, 65, 85, 0.5);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .instructions h2 {
+            color: #a5f3fc;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .instructions p {
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+        
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        button {
+            background: linear-gradient(to right, #06b6d4, #3b82f6);
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.5);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(6, 182, 212, 0.7);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .recording-indicator {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .mic-icon {
+            width: 100px;
+            height: 100px;
+            background: #ef4444;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            animation: pulse 1.5s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .processing-indicator {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            animation: spin 3s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .result-container {
+            text-align: center;
+        }
+        
+        .result-title {
+            font-size: 1.8rem;
+            color: #a5f3fc;
+            margin-bottom: 10px;
+        }
+        
+        .result-subtitle {
+            color: #94a3b8;
+            margin-bottom: 30px;
+        }
+        
+        #finalCanvas {
+            max-width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 0 50px rgba(103, 232, 249, 0.3);
+            border: 2px solid rgba(103, 232, 249, 0.3);
+            margin-bottom: 30px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .secondary-button {
+            background: #475569;
+            box-shadow: none;
+        }
+        
+        .secondary-button:hover:not(:disabled) {
+            background: #64748b;
+        }
+        
+        .error {
+            background: rgba(220, 38, 38, 0.2);
+            border: 1px solid #ef4444;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: start;
+        }
+        
+        .error-icon {
+            color: #fca5a5;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .error-content h3 {
+            color: #fca5a5;
+            margin-bottom: 8px;
+        }
+        
+        .error-content p {
+            color: #fecaca;
+            margin-bottom: 10px;
+        }
+        
+        .error-content .help {
+            color: #fcd34d;
+            font-size: 0.9rem;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>❄️ Frozen Voiceprint Snowflake</h1>
+            <p>Transform your voice into a unique crystalline snowflake</p>
+        </div>
+        
+        <div class="card">
+            <div id="errorContainer" class="error hidden">
+                <div class="error-icon">⚠️</div>
+                <div class="error-content">
+                    <h3>Error</h3>
+                    <p id="errorMessage"></p>
+                    <p class="help">Make sure to allow microphone access when prompted. Check your browser settings if needed.</p>
+                </div>
+            </div>
+            
+            <div id="idleView">
+                <div class="instructions">
+                    <h2>Say a word or phrase that represents your winter energy</h2>
+                    <p>We'll convert your voice into a frequency map, apply icy textures, and fold it mathematically into a snowflake pattern.</p>
+                </div>
+                <div class="button-container">
+                    <button id="startBtn" onclick="startRecording()">
+                        🎤 Start Recording
+                    </button>
+                </div>
+            </div>
+            
+            <div id="recordingView" class="hidden">
+                <div class="recording-indicator">
+                    <div class="mic-icon">🎤</div>
+                    <h2 style="color: #a5f3fc; margin-bottom: 10px;">Recording your voice...</h2>
+                    <p style="color: #94a3b8;">Speak now! Recording for 1 second...</p>
+                </div>
+            </div>
+            
+            <div id="processingView" class="hidden">
+                <div class="processing-indicator">
+                    <div class="spinner">❄️</div>
+                    <h2 style="color: #a5f3fc; margin-bottom: 10px;">Creating your snowflake...</h2>
+                    <p style="color: #94a3b8;">Analyzing frequencies • Applying ice textures • Folding into crystalline patterns</p>
+                </div>
+            </div>
+            
+            <div id="resultView" class="hidden">
+                <div class="result-container">
+                    <h2 class="result-title">Your Frozen Voiceprint Snowflake</h2>
+                    <p class="result-subtitle">This unique pattern was generated from your voice using FFT analysis and polar transforms</p>
+                    <canvas id="finalCanvas"></canvas>
+                    <div class="button-group">
+                        <button onclick="downloadSnowflake()">
+                            💾 Download Snowflake
+                        </button>
+                        <button class="secondary-button" onclick="reset()">
+                            🔄 Create Another
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>How it works: Voice → FFT Spectrogram → Ice Texturing → Polar Transform → Snowflake</p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">OMSI After Dark 2025</p>
+        </div>
+    </div>
+
+    <canvas id="spectrogramCanvas" style="display: none;"></canvas>
+
+    <script>
+        let audioContext = null;
+        let analyser = null;
+        let mediaStream = null;
+        let snowflakeDataUrl = null;
+
+        function showView(viewName) {
+            document.getElementById('idleView').classList.add('hidden');
+            document.getElementById('recordingView').classList.add('hidden');
+            document.getElementById('processingView').classList.add('hidden');
+            document.getElementById('resultView').classList.add('hidden');
+            document.getElementById(viewName + 'View').classList.remove('hidden');
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorContainer').classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('errorContainer').classList.add('hidden');
+        }
+
+        async function startRecording() {
+            try {
+                hideError();
+                console.log('Requesting microphone access...');
+
+                // Request microphone
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    }
+                });
+
+                console.log('Microphone access granted!');
+
+                // Setup audio context
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaStreamSource(mediaStream);
+
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+                analyser.smoothingTimeConstant = 0.3;
+
+                source.connect(analyser);
+
+                showView('recording');
+
+                // Collect audio data
+                const spectrogramData = [];
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                const captureFrames = 60;
+                let frameCount = 0;
+
+                function collectData() {
+                    if (frameCount < captureFrames) {
+                        analyser.getByteFrequencyData(dataArray);
+                        const voiceRange = Array.from(dataArray.slice(0, 256));
+                        spectrogramData.push(voiceRange);
+                        frameCount++;
+                        requestAnimationFrame(collectData);
+                    } else {
+                        console.log('Recording complete!');
+                        stopMicrophone();
+                        processVoiceprint(spectrogramData);
+                    }
+                }
+
+                collectData();
+
+            } catch (err) {
+                console.error('Microphone error:', err);
+                showError(`Microphone error: ${err.message}`);
+                showView('idle');
+            }
+        }
+
+        function stopMicrophone() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+        }
+
+        async function processVoiceprint(spectrogramData) {
+            showView('processing');
+            
+            // Small delay for UI
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            console.log('Processing spectrogram data...');
+
+            const size = 512;
+            
+            // Create spectrogram
+            const specCanvas = document.getElementById('spectrogramCanvas');
+            specCanvas.width = size;
+            specCanvas.height = size;
+            const specCtx = specCanvas.getContext('2d');
+
+            const freqBins = spectrogramData[0].length;
+            const timeBins = spectrogramData.length;
+
+            // Find max for normalization
+            let maxVal = 0;
+            spectrogramData.forEach(frame => {
+                frame.forEach(val => {
+                    if (val > maxVal) maxVal = val;
+                });
+            });
+
+            console.log(`Processing ${timeBins} frames x ${freqBins} bins, max value: ${maxVal}`);
+
+            // Draw spectrogram
+            for (let t = 0; t < size; t++) {
+                for (let f = 0; f < size; f++) {
+                    const tIdx = Math.floor((t / size) * timeBins);
+                    const fIdx = Math.floor((f / size) * freqBins);
+                    const value = spectrogramData[tIdx]?.[fIdx] || 0;
+                    
+                    const normalized = (value / Math.max(maxVal, 1)) * 255;
+                    const enhanced = Math.pow(normalized / 255, 0.7) * 255;
+                    
+                    specCtx.fillStyle = `rgb(${enhanced}, ${enhanced}, ${enhanced})`;
+                    specCtx.fillRect(t, size - f - 1, 1, 1);
+                }
+            }
+
+            // Apply ice texture
+            const specData = specCtx.getImageData(0, 0, size, size);
+            
+            for (let i = 0; i < specData.data.length; i += 4) {
+                const brightness = specData.data[i];
+                const normalized = brightness / 255;
+                
+                const r = Math.floor(100 + normalized * 155);
+                const g = Math.floor(150 + normalized * 105);
+                const b = Math.floor(180 + normalized * 75);
+                
+                const sparkle = Math.random() > 0.97 ? 40 : 0;
+                
+                specData.data[i] = Math.min(255, r + sparkle);
+                specData.data[i + 1] = Math.min(255, g + sparkle);
+                specData.data[i + 2] = Math.min(255, b + sparkle);
+            }
+            
+            specCtx.putImageData(specData, 0, 0);
+
+            // Create snowflake
+            const finalCanvas = document.getElementById('finalCanvas');
+            finalCanvas.width = size;
+            finalCanvas.height = size;
+            const finalCtx = finalCanvas.getContext('2d');
+            
+            // Background
+            const gradient = finalCtx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+            gradient.addColorStop(0, '#0f1b2e');
+            gradient.addColorStop(1, '#050a14');
+            finalCtx.fillStyle = gradient;
+            finalCtx.fillRect(0, 0, size, size);
+
+            const center = size / 2;
+            const wedges = 6;
+            
+            // Create wedges
+            for (let w = 0; w < wedges; w++) {
+                const angle = (w * 2 * Math.PI) / wedges;
+                
+                finalCtx.save();
+                finalCtx.translate(center, center);
+                finalCtx.rotate(angle);
+                
+                for (let mirror = 0; mirror < 2; mirror++) {
+                    finalCtx.save();
+                    if (mirror === 1) {
+                        finalCtx.scale(-1, 1);
+                    }
+                    
+                    const maxRadius = center * 0.9;
+                    for (let r = 0; r < maxRadius; r += 0.5) {
+                        for (let theta = 0; theta < Math.PI / wedges; theta += 0.01) {
+                            const x = r * Math.cos(theta);
+                            const y = r * Math.sin(theta);
+                            
+                            const srcX = Math.floor((theta / (Math.PI / wedges)) * size);
+                            const srcY = Math.floor((r / maxRadius) * size);
+                            
+                            if (srcX >= 0 && srcX < size && srcY >= 0 && srcY < size) {
+                                const pixel = specCtx.getImageData(srcX, srcY, 1, 1).data;
+                                const alpha = Math.max(0.3, pixel[0] / 255);
+                                finalCtx.fillStyle = `rgba(${pixel[0]}, ${pixel[1]}, ${pixel[2]}, ${alpha})`;
+                                finalCtx.fillRect(x, y, 1.5, 1.5);
+                            }
+                        }
+                    }
+                    
+                    finalCtx.restore();
+                }
+                
+                finalCtx.restore();
+            }
+
+            // Center glow
+            const centerGlow = finalCtx.createRadialGradient(center, center, 0, center, center, 50);
+            centerGlow.addColorStop(0, 'rgba(200, 230, 255, 0.8)');
+            centerGlow.addColorStop(1, 'rgba(200, 230, 255, 0)');
+            finalCtx.fillStyle = centerGlow;
+            finalCtx.fillRect(0, 0, size, size);
+
+            // Branding
+            finalCtx.fillStyle = 'rgba(200, 230, 255, 0.9)';
+            finalCtx.font = 'bold 18px Arial';
+            finalCtx.textAlign = 'center';
+            finalCtx.fillText('Frozen Voiceprint', center, size - 35);
+            finalCtx.font = '14px Arial';
+            finalCtx.fillText('OMSI After Dark 2025', center, size - 15);
+
+            snowflakeDataUrl = finalCanvas.toDataURL('image/png');
+            
+            console.log('Snowflake complete!');
+            showView('result');
+        }
+
+        function downloadSnowflake() {
+            const link = document.createElement('a');
+            link.download = `frozen-voiceprint-${Date.now()}.png`;
+            link.href = snowflakeDataUrl;
+            link.click();
+        }
+
+        function reset() {
+            snowflakeDataUrl = null;
+            hideError();
+            showView('idle');
+        }
+
+        // Initialize
+        showView('idle');
+    </script>
+</body>
+</html>
