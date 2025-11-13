@@ -261,7 +261,7 @@
                 <div class="recording-indicator">
                     <div class="mic-icon">🎤</div>
                     <h2 style="color: #a5f3fc; margin-bottom: 10px;">Recording your voice...</h2>
-                    <p style="color: #94a3b8;">Speak now! Recording for 1 second...</p>
+                    <p style="color: #94a3b8;">Speak now! Recording for 3 seconds...</p>
                 </div>
             </div>
             
@@ -353,7 +353,7 @@
                 const spectrogramData = [];
                 const bufferLength = analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
-                const captureFrames = 700;
+                const captureFrames = 180;
                 let frameCount = 0;
 
                 function collectData() {
